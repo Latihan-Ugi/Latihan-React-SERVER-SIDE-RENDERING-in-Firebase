@@ -1,7 +1,7 @@
 "use strict";
 
-var acquireRefs = require("../lib/acquireRefs");
-var chalk = require("chalk");
+var requireAccess = require("../lib/requireAccess");
+var clc = require("cli-color");
 var checkDupHostingKeys = require("../lib/checkDupHostingKeys");
 var checkValidTargetFilters = require("../lib/checkValidTargetFilters");
 var checkFirebaseSDKVersion = require("../lib/checkFirebaseSDKVersion");
@@ -30,19 +30,19 @@ module.exports = new Command("deploy")
   .option("--except <targets>", 'deploy to all targets except specified (e.g. "database")')
   .before(requireConfig)
   .before(function(options) {
-    return acquireRefs(options, [scopes.CLOUD_PLATFORM]).catch(function(err) {
+    return requireAccess(options, [scopes.CLOUD_PLATFORM]).catch(function(err) {
       if (options.config.has("functions")) {
         throw err;
       }
 
       logger.info();
       utils.logWarning(
-        chalk.bold("Your CLI authentication needs to be updated to take advantage of new features.")
+        clc.bold("Your CLI authentication needs to be updated to take advantage of new features.")
       );
-      utils.logWarning(chalk.bold("Please run " + chalk.underline("firebase login --reauth")));
+      utils.logWarning(clc.bold("Please run " + clc.underline("firebase login --reauth")));
       logger.info();
 
-      return acquireRefs(options, []);
+      return requireAccess(options, []);
     });
   })
   .before(checkDupHostingKeys)

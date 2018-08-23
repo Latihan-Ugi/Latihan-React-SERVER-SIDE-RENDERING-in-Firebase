@@ -1,6 +1,6 @@
 "use strict";
 
-var chalk = require("chalk");
+var clc = require("cli-color");
 var _ = require("lodash");
 
 var api = require("../lib/api");
@@ -108,7 +108,7 @@ var transArrayToUser = function(arr) {
     photoUrl: arr[6],
     createdAt: arr[23],
     lastLoginAt: arr[24],
-    phoneNumber: arr[26],
+    phoneNumber: arr[25],
     providerUserInfo: [],
   };
   _addProviderUserInfo(user, "google.com", arr.slice(7, 11));
@@ -216,7 +216,7 @@ var _validateRequiredParameters = function(options) {
         dkLen: dkLen,
       };
     default:
-      return utils.reject("Unsupported hash algorithm " + chalk.bold(options.hashAlgo));
+      return utils.reject("Unsupported hash algorithm " + clc.bold(options.hashAlgo));
   }
 };
 

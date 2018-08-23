@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "latihan-react-srr",
+    "ssr": "latihan-react-srr"
+  }
+}

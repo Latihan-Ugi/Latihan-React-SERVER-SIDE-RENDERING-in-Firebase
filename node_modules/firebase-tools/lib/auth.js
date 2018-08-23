@@ -1,11 +1,11 @@
 "use strict";
 
 var _ = require("lodash");
-var chalk = require("chalk");
+var clc = require("cli-color");
 var fs = require("fs");
 var jwt = require("jsonwebtoken");
 var http = require("http");
-var open = require("opn");
+var opn = require("opn");
 var path = require("path");
 var portfinder = require("portfinder");
 var url = require("url");
@@ -19,12 +19,18 @@ var scopes = require("./scopes");
 
 portfinder.basePort = 9005;
 
+var open = function(url) {
+  opn(url).catch(function(err) {
+    logger.debug("Unable to open URL: " + err.stack);
+  });
+};
+
 var INVALID_CREDENTIAL_ERROR = new FirebaseError(
   "Authentication Error: Your credentials are no longer valid. Please run " +
-    chalk.bold("firebase login --reauth") +
+    clc.bold("firebase login --reauth") +
     "\n\n" +
     "For CI servers and headless environments, generate a new token with " +
-    chalk.bold("firebase login:ci"),
+    clc.bold("firebase login:ci"),
   { exit: 1 }
 );
 
@@ -125,7 +131,7 @@ var _loginWithoutLocalhost = function() {
 
   logger.info();
   logger.info("Visit this URL on any device to log in:");
-  logger.info(chalk.bold.underline(authUrl));
+  logger.info(clc.bold.underline(authUrl));
   logger.info();
 
   open(authUrl);
@@ -181,7 +187,7 @@ var _loginWithLocalhost = function(port) {
     server.listen(port, function() {
       logger.info();
       logger.info("Visit this URL on any device to log in:");
-      logger.info(chalk.bold.underline(authUrl));
+      logger.info(clc.bold.underline(authUrl));
       logger.info();
       logger.info("Waiting for authentication...");
 
@@ -233,16 +239,21 @@ var _logoutCurrentSession = function(refreshToken) {
 var _refreshAccessToken = function(refreshToken, authScopes) {
   logger.debug("> refreshing access token with scopes:", JSON.stringify(authScopes));
   return api
-    .request("POST", "/oauth2/v3/token", {
-      origin: api.googleOrigin,
-      form: {
-        refresh_token: refreshToken,
-        client_id: api.clientId,
-        client_secret: api.clientSecret,
-        grant_type: "refresh_token",
-        scope: (authScopes || []).join(" "),
+    .request(
+      "POST",
+      "/oauth2/v3/token",
+      {
+        origin: api.googleOrigin,
+        form: {
+          refresh_token: refreshToken,
+          client_id: api.clientId,
+          client_secret: api.clientSecret,
+          grant_type: "refresh_token",
+          scope: (authScopes || []).join(" "),
+        },
       },
-    })
+      { skipRequestBody: true }
+    )
     .then(
       function(res) {
         if (!_.isString(res.body.access_token)) {
@@ -268,10 +279,10 @@ var _refreshAccessToken = function(refreshToken, authScopes) {
         if (_.get(err, "context.body.error") === "invalid_scope") {
           throw new FirebaseError(
             "This command requires new authorization scopes not granted to your current session. Please run " +
-              chalk.bold("firebase login --reauth") +
+              clc.bold("firebase login --reauth") +
               "\n\n" +
               "For CI servers and headless environments, generate a new token with " +
-              chalk.bold("firebase login:ci"),
+              clc.bold("firebase login:ci"),
             { exit: 1 }
           );
         }

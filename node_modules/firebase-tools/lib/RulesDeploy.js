@@ -1,7 +1,7 @@
 "use strict";
 
 var _ = require("lodash");
-var chalk = require("chalk");
+var clc = require("cli-color");
 var fs = require("fs");
 
 var gcp = require("./gcp");
@@ -29,7 +29,7 @@ RulesDeploy.prototype = {
       src = fs.readFileSync(fullPath, "utf8");
     } catch (e) {
       logger.debug("[rules read error]", e.stack);
-      throw new FirebaseError("Error reading rules file " + chalk.bold(path));
+      throw new FirebaseError("Error reading rules file " + clc.bold(path));
     }
 
     this.rulesFiles[path] = [{ name: path, content: src }];
@@ -57,7 +57,7 @@ RulesDeploy.prototype = {
     var promises = [];
     _.forEach(this.rulesFiles, function(files, filename) {
       utils.logBullet(
-        chalk.bold.cyan(self.type + ":") + " uploading rules " + chalk.bold(filename) + "..."
+        clc.bold.cyan(self.type + ":") + " uploading rules " + clc.bold(filename) + "..."
       );
       promises.push(
         gcp.rules.createRuleset(self.options.project, files).then(function(rulesetName) {
@@ -74,30 +74,30 @@ RulesDeploy.prototype = {
       .updateOrCreateRelease(this.options.project, this.rulesetNames[filename], resourceName)
       .then(function() {
         utils.logSuccess(
-          chalk.bold.green(self.type + ": ") +
+          clc.bold.green(self.type + ": ") +
             "released rules " +
-            chalk.bold(filename) +
+            clc.bold(filename) +
             " to " +
-            chalk.bold(resourceName)
+            clc.bold(resourceName)
         );
       });
   },
 
   _compileRuleset: function(filename, files) {
     utils.logBullet(
-      chalk.bold.cyan(this.type + ":") +
+      clc.bold.cyan(this.type + ":") +
         " checking " +
-        chalk.bold(filename) +
+        clc.bold(filename) +
         " for compilation errors..."
     );
     var self = this;
     return gcp.rules.testRuleset(self.options.project, files).then(function(response) {
       if (response.body && response.body.issues && response.body.issues.length > 0) {
-        var add = response.body.issues.length === 1 ? "" : "s";
-        var message = "Compilation error" + add + " in " + chalk.bold(filename) + ":\n";
+        var warnings = [];
+        var errors = [];
         response.body.issues.forEach(function(issue) {
-          message +=
-            "\n[" +
+          var issueMessage =
+            "[" +
             issue.severity.substring(0, 1) +
             "] " +
             issue.sourcePosition.line +
@@ -105,15 +105,32 @@ RulesDeploy.prototype = {
             issue.sourcePosition.column +
             " - " +
             issue.description;
+
+          if (issue.severity === "ERROR") {
+            errors.push(issueMessage);
+          } else {
+            warnings.push(issueMessage);
+          }
         });
 
-        return utils.reject(message, { exit: 1 });
+        if (warnings.length > 0) {
+          warnings.forEach(function(warning) {
+            utils.logWarning(warning);
+          });
+        }
+
+        if (errors.length > 0) {
+          var add = errors.length === 1 ? "" : "s";
+          var message =
+            "Compilation error" + add + " in " + clc.bold(filename) + ":\n" + errors.join("\n");
+          return utils.reject(message, { exit: 1 });
+        }
       }
 
       utils.logSuccess(
-        chalk.bold.green(self.type + ":") +
+        clc.bold.green(self.type + ":") +
           " rules file " +
-          chalk.bold(filename) +
+          clc.bold(filename) +
           " compiled successfully"
       );
       return Promise.resolve();

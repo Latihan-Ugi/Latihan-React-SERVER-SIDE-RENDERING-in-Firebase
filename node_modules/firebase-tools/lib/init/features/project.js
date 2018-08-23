@@ -1,6 +1,6 @@
 "use strict";
 
-var chalk = require("chalk");
+var clc = require("cli-color");
 
 var _ = require("lodash");
 var api = require("../../api");
@@ -17,7 +17,7 @@ module.exports = function(setup, config) {
   logger.info();
   logger.info("First, let's associate this project directory with a Firebase project.");
   logger.info(
-    "You can create multiple project aliases by running " + chalk.bold("firebase use --add") + ", "
+    "You can create multiple project aliases by running " + clc.bold("firebase use --add") + ", "
   );
   logger.info("but for now we'll just set up a default project.");
   logger.info();
@@ -33,6 +33,7 @@ module.exports = function(setup, config) {
 
     if (_.has(setup.rcfile, "projects.default")) {
       utils.logBullet(".firebaserc already has a default project, skipping");
+      setup.projectId = _.get(setup.rcfile, "projects.default");
       return undefined;
     }
 
@@ -61,6 +62,7 @@ module.exports = function(setup, config) {
 
         // write "default" alias and activate it immediately
         _.set(setup.rcfile, "projects.default", projectId);
+        setup.projectId = projectId;
         setup.instance = instance;
         utils.makeActiveProject(config.projectDir, projectId);
       });

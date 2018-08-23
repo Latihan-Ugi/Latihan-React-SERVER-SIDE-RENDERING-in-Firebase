@@ -1,5 +1,7 @@
 "use strict";
 
+var _ = require("lodash");
+
 var api = require("../api");
 var logger = require("../logger");
 var utils = require("../utils");
@@ -12,9 +14,65 @@ function _handleErrorResponse(response) {
   }
 
   logger.debug("[rules] error:", response.status, response.body);
-  return utils.reject("Unexpected error encountered deploying rules.", {
+  return utils.reject("Unexpected error encountered with rules.", {
     code: 2,
   });
+}
+
+/**
+ * Gets the latest ruleset name on the project.
+ * @param {String} projectId Project from which you want to get the ruleset.
+ * @param {String} service Service for the ruleset (ex: cloud.firestore or firebase.storage).
+ * @returns {String} Name of the latest ruleset.
+ */
+function getLatestRulesetName(projectId, service) {
+  return api
+    .request("GET", "/" + API_VERSION + "/projects/" + projectId + "/releases", {
+      auth: true,
+      origin: api.rulesOrigin,
+    })
+    .then(function(response) {
+      if (response.status == 200) {
+        if (response.body.releases && response.body.releases.length > 0) {
+          var releases = _.orderBy(response.body.releases, ["updateTime"], ["desc"]);
+
+          var prefix = "projects/" + projectId + "/releases/" + service;
+          var release = _.find(releases, function(r) {
+            return r.name.indexOf(prefix) == 0;
+          });
+
+          if (!release) {
+            return null;
+          }
+          return release.rulesetName;
+        }
+
+        // In this case it's likely that Firestore has not been used on this project before.
+        return null;
+      }
+
+      return _handleErrorResponse(response);
+    });
+}
+
+/**
+ * Gets the full contents of a ruleset.
+ * @param {String} name Name of the ruleset.
+ * @return {Array<Object>} Array of files in the ruleset. Each entry has form { content, name }.
+ */
+function getRulesetContent(name) {
+  return api
+    .request("GET", "/" + API_VERSION + "/" + name, {
+      auth: true,
+      origin: api.rulesOrigin,
+    })
+    .then(function(response) {
+      if (response.status == 200) {
+        return response.body.source.files;
+      }
+
+      return _handleErrorResponse(response);
+    });
 }
 
 /**
@@ -127,4 +185,6 @@ module.exports = {
   updateRelease: updateRelease,
   updateOrCreateRelease: updateOrCreateRelease,
   testRuleset: testRuleset,
+  getLatestRulesetName: getLatestRulesetName,
+  getRulesetContent: getRulesetContent,
 };

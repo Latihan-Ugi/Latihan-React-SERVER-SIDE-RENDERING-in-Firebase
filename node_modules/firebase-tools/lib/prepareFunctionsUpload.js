@@ -2,11 +2,11 @@
 
 var _ = require("lodash");
 var archiver = require("archiver");
-var chalk = require("chalk");
+var clc = require("cli-color");
 var filesize = require("filesize");
 var fs = require("fs");
 var path = require("path");
-
+var semver = require("semver");
 var tmp = require("tmp");
 
 var FirebaseError = require("./error");
@@ -85,9 +85,9 @@ var _packageSource = function(options, sourceDir, configValues) {
     .then(
       function() {
         utils.logBullet(
-          chalk.cyan.bold("functions:") +
+          clc.cyan.bold("functions:") +
             " packaged " +
-            chalk.bold(options.config.get("functions.source")) +
+            clc.bold(options.config.get("functions.source")) +
             " (" +
             filesize(archive.pointer()) +
             ") for uploading"
@@ -110,9 +110,53 @@ var _packageSource = function(options, sourceDir, configValues) {
     );
 };
 
+var _getRuntimeChoice = function(sourceDir) {
+  var packageJsonPath = path.join(sourceDir, "package.json");
+  var loaded = require(packageJsonPath);
+  var choice = loaded.engines;
+  if (!choice) {
+    return null;
+  }
+  if (_.isEqual(choice, { node: "6" })) {
+    return "nodejs6";
+  }
+  if (_.isEqual(choice, { node: "8" })) {
+    var SDKRange = _.get(loaded, "dependencies.firebase-functions");
+    try {
+      if (!semver.intersects(SDKRange, ">=2")) {
+        throw new FirebaseError(
+          "You must have a firebase-functions version that is at least 1.1.0 " +
+            "in order to deploy functions to the Node 8 runtime.\nPlease run " +
+            clc.bold("npm i --save firebase-functions@latest") +
+            " in the functions folder.",
+          {
+            exit: 1,
+          }
+        );
+      }
+    } catch (e) {
+      // semver check will fail if a URL is used instead of a version number, do nothing
+    }
+    return "nodejs8";
+  }
+  throw new FirebaseError(
+    clc.bold("package.json") +
+      " in functions directory has an engines field which is unsupported." +
+      " The only valid choices are: " +
+      clc.bold('{"node": "8"}') +
+      " and " +
+      clc.bold('{"node": "6"}') +
+      ".",
+    {
+      exit: 1,
+    }
+  );
+};
+
 module.exports = function(context, options) {
   var configValues;
   var sourceDir = options.config.path(options.config.get("functions.source"));
+  context.runtimeChoice = _getRuntimeChoice(sourceDir);
   return _getFunctionsConfig(context)
     .then(function(result) {
       configValues = result;

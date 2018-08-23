@@ -1,7 +1,7 @@
 "use strict";
 
 var _ = require("lodash");
-var chalk = require("chalk");
+var clc = require("cli-color");
 var cjson = require("cjson");
 var fs = require("fs");
 var path = require("path");
@@ -15,6 +15,7 @@ var utils = require("./utils");
 var TARGET_TYPES = {
   storage: { resource: "bucket", exclusive: true },
   database: { resource: "instance", exclusive: true },
+  hosting: { resource: "site", exclusive: true },
 };
 
 var RC = function(rcpath, data) {
@@ -65,7 +66,7 @@ RC.prototype = {
     if (!TARGET_TYPES[type]) {
       throw new FirebaseError(
         "Unrecognized target type " +
-          chalk.bold(type) +
+          clc.bold(type) +
           ". Must be one of " +
           _.keys(TARGET_TYPES).join(", "),
         { code: 1 }
@@ -154,12 +155,13 @@ RC.prototype = {
    * the specified project.
    */
   requireTarget: function(project, type, name) {
-    if (!this.target(project, type, name).length) {
+    var target = this.target(project, type, name);
+    if (!target.length) {
       throw new FirebaseError(
         "Deploy target " +
-          chalk.bold(name) +
+          clc.bold(name) +
           " not configured for project " +
-          chalk.bold(project) +
+          clc.bold(project) +
           ". Configure with:\n\n  firebase target:apply " +
           type +
           " " +
@@ -168,6 +170,8 @@ RC.prototype = {
         { exit: 1 }
       );
     }
+
+    return target;
   },
 
   /**
@@ -191,7 +195,7 @@ RC.loadFile = function(rcpath) {
       data = cjson.load(rcpath);
     } catch (e) {
       // malformed rc file is a warning, not an error
-      utils.logWarning("JSON error trying to load " + chalk.bold(rcpath));
+      utils.logWarning("JSON error trying to load " + clc.bold(rcpath));
     }
   }
   return new RC(rcpath, data);

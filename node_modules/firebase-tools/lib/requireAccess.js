@@ -1,9 +1,8 @@
 "use strict";
 
 var _ = require("lodash");
-var chalk = require("chalk");
+var clc = require("cli-color");
 
-var api = require("./api");
 var getInstanceId = require("./getInstanceId");
 var getProjectId = require("./getProjectId");
 var FirebaseError = require("./error");
@@ -24,10 +23,6 @@ module.exports = function(options, authScopes) {
     })
     .then(function(instance) {
       options.instance = instance;
-      return api.request("GET", "/v1/database/" + options.instance + "/tokens", { auth: true });
-    })
-    .then(function(res) {
-      options.metadataToken = res.body.metadata;
       return;
     })
     .catch(function(err) {
@@ -45,21 +40,21 @@ module.exports = function(options, authScopes) {
           return Promise.reject(
             new FirebaseError(
               "Tried to access unrecognized project " +
-                chalk.bold(projectId) +
+                clc.bold(projectId) +
                 ", but found matching instance for project " +
-                chalk.bold(realProjectId) +
+                clc.bold(realProjectId) +
                 ".\n\n" +
                 "To use " +
-                chalk.bold(realProjectId) +
+                clc.bold(realProjectId) +
                 " instead, run:\n\n  " +
-                chalk.bold(fixCommand)
+                clc.bold(fixCommand)
             ),
             { exit: 1 }
           );
         }
 
         return Promise.reject(
-          new FirebaseError("Unable to authorize access to project " + chalk.bold(projectId), {
+          new FirebaseError("Unable to authorize access to project " + clc.bold(projectId), {
             exit: 1,
           })
         );

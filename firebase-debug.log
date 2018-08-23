@@ -1,0 +1,59 @@
+[debug] [2018-08-23T16:34:00.689Z] ----------------------------------------------------------------------
+[debug] [2018-08-23T16:34:00.691Z] Command:       /usr/local/bin/node /Users/error404/Data/Latihan/ReactJS/React-SRR/node_modules/.bin/firebase serve --only functions,hosting
+[debug] [2018-08-23T16:34:00.692Z] CLI Version:   4.2.0
+[debug] [2018-08-23T16:34:00.692Z] Platform:      darwin
+[debug] [2018-08-23T16:34:00.692Z] Node Version:  v10.8.0
+[debug] [2018-08-23T16:34:00.693Z] Time:          Thu Aug 23 2018 23:34:00 GMT+0700 (Western Indonesia Time)
+[debug] [2018-08-23T16:34:00.693Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2018-08-23T16:34:00.704Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-08-23T16:34:00.704Z] > authorizing via signed-in user
+[debug] [2018-08-23T16:34:00.706Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/latihan-react-srr  
+ 
+[debug] [2018-08-23T16:34:02.343Z] <<< HTTP RESPONSE 200
+[debug] [2018-08-23T16:34:02.344Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/latihan-react-srr  
+ 
+[debug] [2018-08-23T16:34:03.722Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from '/Users/error404/Data/Latihan/ReactJS/React-SRR'...
+[info] 
+[info] i  functions: Preparing to emulate functions.
+[debug] [2018-08-23T16:34:04.467Z] Fetching environment
+[debug] [2018-08-23T16:34:04.469Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/643295387078:getServerAppConfig  
+ 
+[debug] [2018-08-23T16:34:04.469Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/643295387078/clients/_:getWebAppConfig  
+ 
+[debug] [2018-08-23T16:34:05.210Z] <<< HTTP RESPONSE 200
+[debug] [2018-08-23T16:34:05.210Z] Starting @google-cloud/functions-emulator
+[debug] [2018-08-23T16:34:05.307Z] <<< HTTP RESPONSE 200
+[info] i  hosting[latihan-react-srr]: Serving hosting files from: public
+[info] ✔  hosting[latihan-react-srr]: Local server: http://localhost:5000
+[debug] [2018-08-23T16:34:06.793Z] Parsing function triggers
+[warn] ⚠  functions: Failed to load functions source code. Ensure that you have the latest SDK by running npm i --save firebase-functions inside the functions directory.
+[debug] [2018-08-23T16:34:07.200Z] Error during trigger parsing:  Error occurred while parsing your function triggers.
+
+Error: ENOENT: no such file or directory, open '/Users/error404/Data/Latihan/ReactJS/React-SRR/functions/public/index.html'
+    at Object.openSync (fs.js:434:3)
+    at Object.readFileSync (fs.js:339:35)
+    at Object.<anonymous> (/Users/error404/Data/Latihan/ReactJS/React-SRR/functions/index.js:38:26)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Module.require (internal/modules/cjs/loader.js:637:17)
+    at require (internal/modules/cjs/helpers.js:20:18)
+[warn] ⚠  functions: Error from emulator. Error occurred while parsing your function triggers.
+
+Error: ENOENT: no such file or directory, open '/Users/error404/Data/Latihan/ReactJS/React-SRR/functions/public/index.html'
+    at Object.openSync (fs.js:434:3)
+    at Object.readFileSync (fs.js:339:35)
+    at Object.<anonymous> (/Users/error404/Data/Latihan/ReactJS/React-SRR/functions/index.js:38:26)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Module.require (internal/modules/cjs/loader.js:637:17)
+    at require (internal/modules/cjs/helpers.js:20:18)
+[debug] [2018-08-23T16:34:07.201Z] 
